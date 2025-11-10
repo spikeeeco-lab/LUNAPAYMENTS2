@@ -31,7 +31,11 @@ export default async function handler(req, res) {
     // sign generation
     const sorted = Object.keys(params).sort();
     const paramString = sorted.map(k => `${k}=${params[k]}`).join("&");
-    const sign = crypto.createHash("md5").update(paramString + apiSecret).digest("hex").toUpperCase();
+    const sign = crypto
+      .createHash("md5")
+      .update(paramString + apiSecret)
+      .digest("hex")
+      .toUpperCase();
 
     const payload = { ...params, sign };
 
@@ -43,9 +47,13 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    console.log("LPay Response:", data);
 
-    return res.status(200).json(data);
+    // 👇 show full LPay response on screen and logs
+    console.log("LPay Response:", data);
+    return res.status(200).json({
+      success: false,
+      message: JSON.stringify(data),   // send LPay reply as text to browser
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
