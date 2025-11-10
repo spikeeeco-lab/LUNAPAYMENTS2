@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LunaGateway | Deposit Portal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    :root {
+      --primary: #00f0ff;
+      --secondary: #007bff;
+      --bg-dark: #050915;
+      --card-bg: rgba(255, 255, 255, 0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+    body {
+      height: 100vh;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+      display: flex; align-items: center; justify-content: center;
+      color: white; overflow: hidden;
+    }
+
+    .glow {
+      position: absolute; width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--primary), transparent 70%);
+      filter: blur(100px); opacity: 0.25;
+      animation: move 10s infinite alternate;
+    }
+
+    @keyframes move {
+      0% { top: 10%; left: 15%; }
+      100% { top: 70%; left: 65%; }
+    }
+
+    .card {
+      position: relative; background: var(--card-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 40px 30px;
+      width: 350px;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+      text-align: center; z-index: 2;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+    h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(90deg, #00f0ff, #00aaff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
+      text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    }
+
+    .subtitle { font-size: 0.95rem; color: #cceeff; margin-bottom: 25px; opacity: 0.9; }
+
+    label { display: block; text-align: left; margin-bottom: 8px; font-weight: 500; color: #b9eaff; }
+
+    input {
+      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1); color: white; font-size: 1rem;
+      margin-bottom: 20px; outline: none; transition: 0.3s ease;
+    }
+
+    input:focus { box-shadow: 0 0 12px var(--primary); background: rgba(255, 255, 255, 0.15); }
+
+    button {
+      width: 100%; padding: 12px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border: none; border-radius: 12px; color: #000;
+      font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.4s;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+    }
+
+    button:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
+
+    .footer { margin-top: 25px; font-size: 0.8rem; color: #88aacc; opacity: 0.7; }
+
+    .footer span { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+
+  <div class="card">
+    <h1>💠 LunaGateway</h1>
+    <p class="subtitle">Instant Secure Deposits</p>
+
+    <label for="amount">Deposit Amount (₹)</label>
+    <input type="number" id="amount" placeholder="Enter amount e.g. 300" min="1" />
+
+    <button onclick="sendDeposit()">Proceed to Pay</button>
+
+    <p class="footer">⚡ Powered by <span>LunaGateway</span> | Secure • Fast • Reliable</p>
+  </div>
+
+  <script>
+    async function sendDeposit() {
+      const amount = document.getElementById('amount').value.trim();
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/create-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.paymentUrl) {
+          window.location.href = data.paymentUrl;
+        } else {
+          alert('Payment failed: ' + (data.message || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Error connecting to payment server.');
+      }
+    }
+  </script>
+</body>
+</html>
